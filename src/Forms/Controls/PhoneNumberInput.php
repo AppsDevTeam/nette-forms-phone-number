@@ -193,7 +193,7 @@ class PhoneNumberInput extends BaseControl
 	 * @param array $items
 	 * @return $this
 	 */
-	public function setDefaultCountryCodeItems(array $items)
+	public function setCountryCodeItems(array $items)
 	{
 		$this->items = $items;
 		return $this;
