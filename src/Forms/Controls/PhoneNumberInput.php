@@ -23,11 +23,10 @@ class PhoneNumberInput extends BaseControl
 
 	const CONTROLS = [self::CONTROL_COUNTRY_CODE, self::CONTROL_NATIONAL_NUMBER];
 
+	const VALID = [self::class, 'validateNumber'];
+
 	/** @var Html container element template */
 	protected $container;
-
-	/** @var mixed */
-	protected $requireValidNumber;
 
 	/** @var string[]|null */
 	protected $values;
@@ -37,14 +36,11 @@ class PhoneNumberInput extends BaseControl
 
 	/**
 	 * @param string|null $caption
-	 * @param bool $requireValidNumber
 	 */
-	public function __construct($caption = null, $requireValidNumber = true)
+	public function __construct($caption = null)
 	{
 		parent::__construct($caption);
 		$this->container = Html::el();
-
-		$this->requireValidNumber = $requireValidNumber;
 
 		$this->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
 	}
@@ -63,27 +59,9 @@ class PhoneNumberInput extends BaseControl
 		$this->setValue($value);
 	}
 
-	/**
-	 * @return void
-	 */
-	public function validate()
+	public static function validateNumber(PhoneNumberInput $control)
 	{
-		parent::validate();
-
-		if ($this->isRequired() && $this->requireValidNumber) {
-			if (! ($this->value instanceof PhoneNumber) || ! $this->value->isValidNumber()) {
-				if ($this->requireValidNumber === true) {
-					foreach ($this->getRules() as $rule) {
-						if ($rule->validator === Form::REQUIRED) {
-							$this->addError(Validator::formatMessage($rule));
-							break;
-						}
-					}
-				} else {
-					$this->addError($this->requireValidNumber);
-				}
-			}
-		}
+		return $control->getValue() instanceof PhoneNumber && $control->getValue()->isValidNumber();
 	}
 
 	/**
@@ -184,24 +162,6 @@ class PhoneNumberInput extends BaseControl
 		if ($this->isDisabled() || !$form || !$form->isAnchored() || !$form->isSubmitted()) {
 			$this->value = $this->values[self::CONTROL_COUNTRY_CODE] = $value;
 		}
-		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getRequireValidNumber()
-	{
-		return $this->requireValidNumber;
-	}
-
-	/**
-	 * @param mixed $value
-	 * @return PhoneNumberInput
-	 */
-	public function setRequireValidNumber($value = true)
-	{
-		$this->requireValidNumber = $value;
 		return $this;
 	}
 
