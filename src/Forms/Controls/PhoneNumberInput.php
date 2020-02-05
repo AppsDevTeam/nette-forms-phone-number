@@ -5,6 +5,8 @@ namespace ADT\Forms\Controls;
 use Brick\PhoneNumber\PhoneNumber;
 use Brick\PhoneNumber\PhoneNumberFormat;
 use Brick\PhoneNumber\PhoneNumberParseException;
+use GeoIp2\Database\Reader;
+use GeoIp2\Exception\GeoIp2Exception;
 use libphonenumber\CountryCodeToRegionCodeMap;
 use Nette\Forms\Container;
 use Nette\Forms\Controls\BaseControl;
@@ -30,6 +32,9 @@ class PhoneNumberInput extends BaseControl
 	/** @var string[]|null */
 	protected $values;
 
+	/** @var string|null */
+	private static $defaultCountryCodeByIP;
+
 	/**
 	 * @param string|null $caption
 	 * @param bool $requireValidNumber
@@ -40,6 +45,8 @@ class PhoneNumberInput extends BaseControl
 		$this->container = Html::el();
 
 		$this->requireValidNumber = $requireValidNumber;
+
+		$this->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
 	}
 
 	/**
@@ -168,6 +175,19 @@ class PhoneNumberInput extends BaseControl
 	}
 
 	/**
+	 * @param string|null $value
+	 * @return PhoneNumberInput
+	 */
+	public function setDefaultCountryCode($value)
+	{
+		$form = $this->getForm(false);
+		if ($this->isDisabled() || !$form || !$form->isAnchored() || !$form->isSubmitted()) {
+			$this->value = $this->values[self::CONTROL_COUNTRY_CODE] = $value;
+		}
+		return $this;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function getRequireValidNumber()
@@ -192,6 +212,38 @@ class PhoneNumberInput extends BaseControl
 	protected function getControlPartHtmlName($key)
 	{
 		return $this->getHtmlName() . ucfirst($key);
+	}
+
+	/**
+	 * @return string|null
+	 * @throws \MaxMind\Db\Reader\InvalidDatabaseException
+	 */
+	public static function getDefaultCountryCodeByIP()
+	{
+		if (self::$defaultCountryCodeByIP !== null) {
+			return self::$defaultCountryCodeByIP;
+		}
+
+		$result = null;
+
+		if (isset($_SERVER['REMOTE_ADDR'])) {
+			try {
+				$reader = new Reader(__DIR__ . '/../../../GeoLite2-Country.mmdb');
+				$country = $reader->country($_SERVER['REMOTE_ADDR']);
+
+				$code = $country->country->isoCode;
+
+				foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $cc => $rcm) {
+					if (array_search($code, $rcm) !== false) {
+						$result = '+' . $cc;
+						break;
+					}
+				}
+			} catch (GeoIp2Exception $e) {
+			}
+		}
+
+		return self::$defaultCountryCodeByIP = $result;
 	}
 
 	/**
