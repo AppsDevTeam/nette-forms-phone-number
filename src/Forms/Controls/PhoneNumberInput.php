@@ -15,7 +15,6 @@ use Nette\Forms\Helpers;
 use Nette\Forms\Validator;
 use Nette\Utils\Html;
 
-
 class PhoneNumberInput extends BaseControl
 {
 	const CONTROL_COUNTRY_CODE = 'countryCode';
@@ -30,6 +29,9 @@ class PhoneNumberInput extends BaseControl
 
 	/** @var string[]|null */
 	protected $values;
+
+	/** @var array */
+	protected $items;
 
 	/** @var string|null */
 	private static $defaultCountryCodeByIP;
@@ -78,6 +80,17 @@ class PhoneNumberInput extends BaseControl
 		return $this->container->setHtml($html);
 	}
 
+	protected function getCountryCodes()
+	{
+		$countryCodes = [];
+
+		foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $code => $_) {
+			$countryCodes['+' . $code] = '+' . $code;
+		}
+
+		return $countryCodes;
+	}
+
 	/**
 	 * @param string|null $key
 	 * @return Html|null
@@ -102,8 +115,14 @@ class PhoneNumberInput extends BaseControl
 
 				$items = ['' => '---'];
 
-				foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $code => $_) {
-					$items['+' . $code] = '+' . $code;
+				if ($this->items) {
+					if (count($this->items) === 1) {
+						$items = $this->items;
+					} else {
+						$items = array_merge($items, $this->items);
+					}
+				} else {
+					$items = array_merge($items, $this->getCountryCodes());
 				}
 
 				return Helpers::createSelectBox($items, null, $value)
@@ -133,11 +152,16 @@ class PhoneNumberInput extends BaseControl
 
 		if ($value instanceof PhoneNumber) {
 			$phoneNumber = $value;
-		} elseif ((string)$value !== '') {
+		} elseif (!empty($value)) {
 			try {
 				$phoneNumber = PhoneNumber::parse($value);
 			} catch (PhoneNumberParseException $e) {
-				$phoneNumber = (string)$value;
+				// both parts of a phone number must be set, otherwise consider as empty
+				if (in_array($value, $this->getCountryCodes()) || strpos($value, '+') !== 0) {
+					$phoneNumber = null;
+				} else {
+					$phoneNumber = $value;
+				}
 			}
 		}
 
@@ -162,6 +186,16 @@ class PhoneNumberInput extends BaseControl
 		if ($this->isDisabled() || !$form || !$form->isAnchored() || !$form->isSubmitted()) {
 			$this->value = $this->values[self::CONTROL_COUNTRY_CODE] = $value;
 		}
+		return $this;
+	}
+
+	/**
+	 * @param array $items
+	 * @return $this
+	 */
+	public function setDefaultCountryCodeItems(array $items)
+	{
+		$this->items = $items;
 		return $this;
 	}
 
