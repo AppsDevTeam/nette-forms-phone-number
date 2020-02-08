@@ -5,6 +5,7 @@ namespace ADT\Forms\Controls;
 use Brick\PhoneNumber\PhoneNumber;
 use Brick\PhoneNumber\PhoneNumberFormat;
 use Brick\PhoneNumber\PhoneNumberParseException;
+use Brick\PhoneNumber\PhoneNumberType;
 use GeoIp2\Database\Reader;
 use GeoIp2\Exception\GeoIp2Exception;
 use libphonenumber\CountryCodeToRegionCodeMap;
@@ -23,6 +24,7 @@ class PhoneNumberInput extends BaseControl
 	const CONTROLS = [self::CONTROL_COUNTRY_CODE, self::CONTROL_NATIONAL_NUMBER];
 
 	const VALID = [self::class, 'validateNumber'];
+	const TYPE = [self::class, 'validateType'];
 
 	/** @var Html container element template */
 	protected $container;
@@ -64,6 +66,11 @@ class PhoneNumberInput extends BaseControl
 	public static function validateNumber(PhoneNumberInput $control)
 	{
 		return $control->getValue() instanceof PhoneNumber && $control->getValue()->isValidNumber();
+	}
+
+	public static function validateType(PhoneNumberInput $control, $type)
+	{
+		return $control->getValue() instanceof PhoneNumber && $control->getValue()->getNumberType() === $type;
 	}
 
 	/**
