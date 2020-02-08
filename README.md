@@ -25,7 +25,8 @@ $form->addPhoneNumber('phone', 'Phone number')
 	->setCountryCodeItems(['+420' => '+420']) // otherwise lists all countries with a prompt
 	->setDefaultCountryCode('+420') // otherwise set by geo IP address
 	->setRequired('Fill your phone number')
-	->addRule(PhoneNumberInput::VALID, 'A phone number must be valid');
+	->addRule(PhoneNumberInput::VALID, 'A phone number must be valid')
+	->addRule(PhoneNumberInput::TYPE, 'A phone number must be mobile', PhoneNumberType::MOBILE);
   
 $form->onSuccess[] = function ($form) {
 	$form['phone']->getValue(); // returns instance of Brick\PhoneNumber\PhoneNumber
