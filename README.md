@@ -46,3 +46,5 @@ or separately:
 ```latte
 {input phone:countryCode} {input phone:nationalNumber}
 ```
+
+To turn on autocomplete in IDE, add `@method PhoneNumberInput addPhoneNumber($name, $label = null)` to your base form.
