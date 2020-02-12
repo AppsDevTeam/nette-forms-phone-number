@@ -5,6 +5,7 @@
     "require": {
         "brick/phonenumber": "^0.2.1",
         "nette/forms": "^2.4",
+        "nette/utils": "^2.4",
         "geoip2/geoip2": "^2.10"
     },
     "autoload": {
