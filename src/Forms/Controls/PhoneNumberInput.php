@@ -212,6 +212,10 @@ class PhoneNumberInput extends BaseControl
 	 */
 	protected function getControlPartHtmlName($key)
 	{
+		if ((Strings::endsWith($this->getHtmlName(), ']'))) {
+			return substr($this->getHtmlName(),0, -1) . ucfirst($key) . ']';
+		}
+
 		return $this->getHtmlName() . ucfirst($key);
 	}
 
