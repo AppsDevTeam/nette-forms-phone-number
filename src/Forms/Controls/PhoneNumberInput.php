@@ -15,6 +15,7 @@ use Nette\Forms\Form;
 use Nette\Forms\Helpers;
 use Nette\Forms\Validator;
 use Nette\Utils\Html;
+use Nette\Utils\Strings;
 
 class PhoneNumberInput extends BaseControl
 {
