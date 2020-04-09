@@ -53,7 +53,7 @@ class PhoneNumberInput extends BaseControl
 	/**
 	 * @return void
 	 */
-	public function loadHttpData()
+	public function loadHttpData(): void
 	{
 		$value = '';
 
@@ -103,7 +103,7 @@ class PhoneNumberInput extends BaseControl
 	 * @param string|null $key
 	 * @return Html|null
 	 */
-	public function getControlPart($key = null)
+	public function getControlPart($key = null): ?Html
 	{
 		if ($key === null) {
 			return parent::getControlPart();
