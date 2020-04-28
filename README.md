@@ -1,4 +1,4 @@
-# Phone Number input for Nette Forms 2.4
+# Phone Number input for Nette Forms
 
 ## Installation
 
