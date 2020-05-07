@@ -146,7 +146,8 @@ class PhoneNumberInput extends BaseControl
 				return Html::el('input', array_merge([
 					'type' => 'text',
 					'value' => $value,
-					'id' => $this->getHtmlId()
+					'id' => $this->getHtmlId(),
+					'data-nette-rules' => \Nette\Forms\Helpers::exportRules($this->getRules()) ?: null,
 				], $attrs));
 		}
 	}
