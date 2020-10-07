@@ -38,6 +38,8 @@ class PhoneNumberInput extends BaseControl
 
 	/** @var string|null */
 	private static $defaultCountryCodeByIP;
+	
+	protected $controls;
 
 	/**
 	 * @param string|null $caption
@@ -46,6 +48,8 @@ class PhoneNumberInput extends BaseControl
 	{
 		parent::__construct($caption);
 		$this->container = Html::el();
+		$this->controls[static::CONTROL_COUNTRY_CODE] = Html::el();
+		$this->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
 
 		$this->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
 	}
@@ -109,11 +113,11 @@ class PhoneNumberInput extends BaseControl
 			return parent::getControlPart();
 		}
 
-		$attrs = [
+		$attrs = array_merge([
 			'name' => $this->getControlPartHtmlName($key),
 			'required' => $this->isRequired(),
 			'disabled' => $this->isDisabled(),
-		];
+		], $this->getControlPrototype($key)->attrs);
 
 		switch ($key) {
 			case self::CONTROL_COUNTRY_CODE:
@@ -184,6 +188,15 @@ class PhoneNumberInput extends BaseControl
 	public function getContainerPrototype()
 	{
 		return $this->container;
+	}
+
+	public function getControlPrototype($key = null): Html
+	{
+		if ($key === null) {
+			return parent::getControlPrototype();
+		}
+
+		return $this->controls[$key];
 	}
 
 	/**
