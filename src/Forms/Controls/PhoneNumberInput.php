@@ -153,8 +153,6 @@ class PhoneNumberInput extends BaseControl
 					'id' => $this->getHtmlId(),
 					'data-nette-rules' => \Nette\Forms\Helpers::exportRules($this->getRules()) ?: null,
 				], $attrs));
-
-				break;
 		}
 	}
 
