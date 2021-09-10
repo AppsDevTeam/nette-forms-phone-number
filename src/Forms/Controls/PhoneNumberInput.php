@@ -286,7 +286,7 @@ class PhoneNumberInput extends BaseControl
 
 		if (isset($_SERVER['REMOTE_ADDR'])) {
 			try {
-				$code = self::getCountryCodeByIp();;
+				$code = self::getCountryCodeByIp();
 
 				foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $cc => $rcm) {
 					if (array_search($code, $rcm) !== false) {
