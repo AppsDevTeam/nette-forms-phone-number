@@ -3,6 +3,7 @@
 namespace ADT\Forms\Controls;
 
 use Brick\PhoneNumber\PhoneNumber;
+use Brick\PhoneNumber\PhoneNumberException;
 use Brick\PhoneNumber\PhoneNumberFormat;
 use Brick\PhoneNumber\PhoneNumberParseException;
 use Brick\PhoneNumber\PhoneNumberType;
@@ -38,7 +39,10 @@ class PhoneNumberInput extends BaseControl
 
 	/** @var string|null */
 	private static $defaultCountryCodeByIP;
-	
+
+	/** @var string|null */
+	private static $defaultRegionCodeByIP;
+
 	protected $controls;
 
 	/**
@@ -213,6 +217,27 @@ class PhoneNumberInput extends BaseControl
 	}
 
 	/**
+	 * @return PhoneNumberInput
+	 */
+	public function setAutoPlaceholder($regionCode = NULL)
+	{
+		if (!$regionCode) {
+			$regionCode = self::getDefaultRegionCodeByIP();
+		}
+
+		if (!$regionCode) {
+			return $this;
+		}
+
+		try {
+			$placeholder =  PhoneNumber::getExampleNumber($regionCode);
+			$this->controls[static::CONTROL_NATIONAL_NUMBER]->setAttribute("placeholder", $placeholder->getNationalNumber());
+		} catch (PhoneNumberException $e) {}
+
+		return $this;
+	}
+
+	/**
 	 * @param array $items
 	 * @return $this
 	 */
@@ -237,6 +262,18 @@ class PhoneNumberInput extends BaseControl
 
 	/**
 	 * @return string|null
+	 * @throws \GeoIp2\Exception\AddressNotFoundException
+	 * @throws \MaxMind\Db\Reader\InvalidDatabaseException
+	 */
+	public static function getCountryCodeByIp() {
+		$reader = new Reader(__DIR__ . '/../../../GeoLite2-Country.mmdb');
+		$country = $reader->country($_SERVER['REMOTE_ADDR']);
+
+		return $country->country->isoCode;
+	}
+
+	/**
+	 * @return string|null
 	 * @throws \MaxMind\Db\Reader\InvalidDatabaseException
 	 */
 	public static function getDefaultCountryCodeByIP()
@@ -249,10 +286,7 @@ class PhoneNumberInput extends BaseControl
 
 		if (isset($_SERVER['REMOTE_ADDR'])) {
 			try {
-				$reader = new Reader(__DIR__ . '/../../../GeoLite2-Country.mmdb');
-				$country = $reader->country($_SERVER['REMOTE_ADDR']);
-
-				$code = $country->country->isoCode;
+				$code = self::getCountryCodeByIp();
 
 				foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $cc => $rcm) {
 					if (array_search($code, $rcm) !== false) {
@@ -265,6 +299,28 @@ class PhoneNumberInput extends BaseControl
 		}
 
 		return self::$defaultCountryCodeByIP = $result;
+	}
+
+	/**
+	 * @return string|null
+	 * @throws \MaxMind\Db\Reader\InvalidDatabaseException
+	 */
+	public static function getDefaultRegionCodeByIP()
+	{
+		if (self::$defaultRegionCodeByIP !== null) {
+			return self::$defaultRegionCodeByIP;
+		}
+
+		$result = null;
+
+		if (isset($_SERVER['REMOTE_ADDR'])) {
+			try {
+				$result = self::getCountryCodeByIp();
+			} catch (GeoIp2Exception $e) {
+			}
+		}
+
+		return self::$defaultRegionCodeByIP = $result;
 	}
 
 	/**
