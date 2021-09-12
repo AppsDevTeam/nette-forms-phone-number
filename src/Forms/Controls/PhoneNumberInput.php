@@ -127,9 +127,9 @@ class PhoneNumberInput extends BaseControl
 			case self::CONTROL_COUNTRY_CODE:
 				$value = $this->value instanceof PhoneNumber
 					? '+' . $this->value->getCountryCode()
-					: ($this->values[$key] ?? null);
+					: ($this->values[$key] ? '+' . $this->values[$key] : null);
 
-				$items = ['' => '---'];
+				$items = [];
 
 				if ($this->items) {
 					if (count($this->items) === 1) {
@@ -230,7 +230,7 @@ class PhoneNumberInput extends BaseControl
 		}
 
 		try {
-			$placeholder =  PhoneNumber::getExampleNumber($regionCode);
+			$placeholder =  PhoneNumber::getExampleNumber($regionCode, PhoneNumberType::MOBILE);
 			$this->controls[static::CONTROL_NATIONAL_NUMBER]->setAttribute("placeholder", $placeholder->getNationalNumber());
 		} catch (PhoneNumberException $e) {}
 
@@ -282,7 +282,7 @@ class PhoneNumberInput extends BaseControl
 			return self::$defaultCountryCodeByIP;
 		}
 
-		$result = null;
+		$result = '420';
 
 		if (isset($_SERVER['REMOTE_ADDR'])) {
 			try {
@@ -311,7 +311,7 @@ class PhoneNumberInput extends BaseControl
 			return self::$defaultRegionCodeByIP;
 		}
 
-		$result = null;
+		$result = 'CZ';
 
 		if (isset($_SERVER['REMOTE_ADDR'])) {
 			try {
