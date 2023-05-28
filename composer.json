@@ -2,7 +2,7 @@
     "name": "adt/nette-forms-phone-number",
     "type": "library",
     "require": {
-        "brick/phonenumber": "^0.4.0",
+        "brick/phonenumber": "^0.4",
         "nette/forms": "^2.4 | ^3.0",
         "geoip2/geoip2": "^2.10"
     },
