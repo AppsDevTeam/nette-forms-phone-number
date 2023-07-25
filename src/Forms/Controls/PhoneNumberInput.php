@@ -56,6 +56,9 @@ class PhoneNumberInput extends BaseControl
 		$this->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
 
 		$this->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
+
+		bd ($this->controls[static::CONTROL_NATIONAL_NUMBER]);
+		return $this->controls[static::CONTROL_NATIONAL_NUMBER];
 	}
 
 	/**
@@ -152,7 +155,7 @@ class PhoneNumberInput extends BaseControl
 				}
 
 				return Html::el('input', array_merge([
-					'type' => 'text',
+					'type' => 'tel',
 					'value' => $value,
 					'id' => $this->getHtmlId(),
 					'data-nette-rules' => \Nette\Forms\Helpers::exportRules($this->getRules()) ?: null,
@@ -336,5 +339,11 @@ class PhoneNumberInput extends BaseControl
 			$self->addComponent($control = new PhoneNumberInput(...$args), $name);
 			return $control;
 		});
+	}
+
+	public function setHtmlAttribute(string $name, $value = true)
+	{
+		$this->controls[PhoneNumberInput::CONTROL_NATIONAL_NUMBER]->$name = $value;
+		return $this;
 	}
 }
