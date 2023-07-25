@@ -56,9 +56,6 @@ class PhoneNumberInput extends BaseControl
 		$this->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
 
 		$this->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
-
-		bd ($this->controls[static::CONTROL_NATIONAL_NUMBER]);
-		return $this->controls[static::CONTROL_NATIONAL_NUMBER];
 	}
 
 	/**
