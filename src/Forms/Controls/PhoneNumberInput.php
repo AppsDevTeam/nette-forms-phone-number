@@ -45,7 +45,7 @@ class PhoneNumberInput extends BaseControl
 
 	protected $controls;
 
-	public static function addPhoneNumber(Container $container, $name, $label = null, $invalidPhoneNumberMessage)
+	public static function addPhoneNumber(Container $container, $name, $label, $invalidPhoneNumberMessage)
 	{
 		$container->addComponent($control = new self($label), $name);
 
