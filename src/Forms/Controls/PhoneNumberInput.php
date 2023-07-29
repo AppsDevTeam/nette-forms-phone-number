@@ -45,17 +45,17 @@ class PhoneNumberInput extends BaseControl
 
 	protected $controls;
 
-	/**
-	 * @param string|null $caption
-	 */
-	public function __construct($caption = null)
+	public static function addPhoneNumber(Container $container, $name, $label = null, $invalidPhoneNumberMessage)
 	{
-		parent::__construct($caption);
-		$this->container = Html::el();
-		$this->controls[static::CONTROL_COUNTRY_CODE] = Html::el();
-		$this->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
+		$container->addComponent($control = new self($label), $name);
 
-		$this->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
+		$control->container = Html::el();
+		$control->controls[static::CONTROL_COUNTRY_CODE] = Html::el();
+		$control->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
+		$control->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
+		$control->addRule(self::TYPE, $invalidPhoneNumberMessage);
+
+		return $control;
 	}
 
 	/**
@@ -328,14 +328,8 @@ class PhoneNumberInput extends BaseControl
 	 */
 	public static function register()
 	{
-		Form::extensionMethod('addPhoneNumber', function (Form $self, $name, ...$args) {
-			$self->addComponent($control = new PhoneNumberInput(...$args), $name);
-			return $control;
-		});
-		Container::extensionMethod('addPhoneNumber', function (Container $self, $name, ...$args) {
-			$self->addComponent($control = new PhoneNumberInput(...$args), $name);
-			return $control;
-		});
+		Form::extensionMethod('addPhoneNumber', [__CLASS__, 'addPhoneNumber']);
+		Container::extensionMethod('addPhoneNumber', [__CLASS__, 'addPhoneNumber']);
 	}
 
 	public function setHtmlAttribute(string $name, $value = true)
