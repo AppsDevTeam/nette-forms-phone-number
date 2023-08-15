@@ -53,7 +53,7 @@ class PhoneNumberInput extends BaseControl
 		$control->controls[static::CONTROL_COUNTRY_CODE] = Html::el();
 		$control->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
 		$control->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
-		$control->addRule(self::TYPE, $invalidPhoneNumberMessage);
+		$control->addRule(self::VALID, $invalidPhoneNumberMessage);
 
 		return $control;
 	}
