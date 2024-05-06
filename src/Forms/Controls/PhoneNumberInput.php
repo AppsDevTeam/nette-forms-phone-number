@@ -45,17 +45,17 @@ class PhoneNumberInput extends BaseControl
 
 	protected $controls;
 
-	public static function addPhoneNumber(Container $container, $name, $label, $invalidPhoneNumberMessage)
+	/**
+	 * @param string|null $caption
+	 */
+	public function __construct($caption = null)
 	{
-		$container->addComponent($control = new self($label), $name);
+		parent::__construct($caption);
+		$this->container = Html::el();
+		$this->controls[static::CONTROL_COUNTRY_CODE] = Html::el();
+		$this->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
 
-		$control->container = Html::el();
-		$control->controls[static::CONTROL_COUNTRY_CODE] = Html::el();
-		$control->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
-		$control->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
-		$control->addRule(self::VALID, $invalidPhoneNumberMessage);
-
-		return $control;
+		$this->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
 	}
 
 	/**
@@ -79,7 +79,8 @@ class PhoneNumberInput extends BaseControl
 
 	public static function validateType(PhoneNumberInput $control, $type)
 	{
-		return $control->getValue() instanceof PhoneNumber && $control->getValue()->getNumberType() === $type;
+		$type = (array) $type;
+		return $control->getValue() instanceof PhoneNumber && in_array($control->getValue()->getNumberType(), $type);
 	}
 
 	/**
@@ -152,7 +153,7 @@ class PhoneNumberInput extends BaseControl
 				}
 
 				return Html::el('input', array_merge([
-					'type' => 'tel',
+					'type' => 'text',
 					'value' => $value,
 					'id' => $this->getHtmlId(),
 					'data-nette-rules' => \Nette\Forms\Helpers::exportRules($this->getRules()) ?: null,
@@ -328,13 +329,13 @@ class PhoneNumberInput extends BaseControl
 	 */
 	public static function register()
 	{
-		Form::extensionMethod('addPhoneNumber', [__CLASS__, 'addPhoneNumber']);
-		Container::extensionMethod('addPhoneNumber', [__CLASS__, 'addPhoneNumber']);
-	}
-
-	public function setHtmlAttribute(string $name, $value = true)
-	{
-		$this->controls[PhoneNumberInput::CONTROL_NATIONAL_NUMBER]->$name = $value;
-		return $this;
+		Form::extensionMethod('addPhoneNumber', function (Form $self, $name, ...$args) {
+			$self->addComponent($control = new PhoneNumberInput(...$args), $name);
+			return $control;
+		});
+		Container::extensionMethod('addPhoneNumber', function (Container $self, $name, ...$args) {
+			$self->addComponent($control = new PhoneNumberInput(...$args), $name);
+			return $control;
+		});
 	}
 }
