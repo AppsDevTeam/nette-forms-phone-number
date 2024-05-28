@@ -333,7 +333,7 @@ class PhoneNumberInput extends BaseControl
 		Container::extensionMethod('addPhoneNumber', [__CLASS__, 'addPhoneNumber']);
 	}
 
-	public function setHtmlAttribute(string $name, $value = true)
+	public function setHtmlAttribute(string $name, mixed $value = true): static
 	{
 		$this->controls[PhoneNumberInput::CONTROL_NATIONAL_NUMBER]->$name = $value;
 		return $this;
