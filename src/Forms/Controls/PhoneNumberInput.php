@@ -80,7 +80,7 @@ class PhoneNumberInput extends BaseControl
 	public static function validateType(PhoneNumberInput $control, $type)
 	{
 		$type = (array) $type;
-		return $control->getValue() instanceof PhoneNumber && in_array($control->getValue()->getNumberType(), $type);
+		return $control->getValue() instanceof PhoneNumber && in_array($control->getValue()->getNumberType()->value, $type);
 	}
 
 	/**
