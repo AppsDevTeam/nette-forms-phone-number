@@ -45,11 +45,14 @@ class PhoneNumberInput extends BaseControl
 
 	protected $controls;
 
-	public static function addPhoneNumber(Container $container, $name, $label, $invalidPhoneNumberMessage)
+	protected bool $injectStyles = true;
+
+	public static function addPhoneNumber(Container $container, $name, $label, $invalidPhoneNumberMessage, bool $injectStyles = true)
 	{
 		$container->addComponent($control = new self($label), $name);
 
-		$control->container = Html::el();
+		$control->injectStyles = $injectStyles;
+		$control->container = Html::el('div')->setAttribute('class', 'input-group phone-number-input-group');
 		$control->controls[static::CONTROL_COUNTRY_CODE] = Html::el();
 		$control->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
 		$control->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
@@ -94,7 +97,17 @@ class PhoneNumberInput extends BaseControl
 			$html .= $this->getControlPart($key);
 		}
 
-		return $this->container->setHtml($html);
+		$style = Html::el('style')->setHtml(
+		// Select (hidden by Select2, but keeps structure correct)
+			'.phone-number-input-group > select { flex: 0 0 25% !important; width: 25% !important; border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }'
+			// Select2 container
+			. ' .phone-number-input-group > .select2-container { flex: 0 0 25% !important; width: 25% !important; }'
+			. ' .phone-number-input-group > .select2-container .select2-selection { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }'
+			// Text input
+			. ' .phone-number-input-group > input[type="tel"] { flex: 0 0 75% !important; width: 75% !important; }'
+		);
+
+		return $this->container->setHtml($html . ($this->injectStyles ? $style : ''));
 	}
 
 	protected function getCountryCodes()
@@ -142,8 +155,31 @@ class PhoneNumberInput extends BaseControl
 					$items = array_merge($items, $this->getCountryCodes());
 				}
 
-				return Helpers::createSelectBox($items, null, $value)
-					->addAttributes($attrs);
+				$select = Helpers::createSelectBox($items, null, $value)
+					->addAttributes($attrs)
+					->setAttribute('class', 'phone-number-country-code');
+
+				$style = Html::el('style')->setHtml(
+				// Make the row behave like input-group
+					'.row:has(.phone-number-country-code) { --bs-gutter-x: 0 !important; flex-wrap: nowrap !important; }'
+					// Select column: 25% width, no padding
+					. ' .row > [class^="col"]:has(.phone-number-country-code) { flex: 0 0 25% !important; max-width: 25% !important; padding: 0 !important; }'
+					// Input column: 75% width, no padding
+					. ' .row > [class^="col"]:has(input[type="tel"]) { flex: 0 0 75% !important; max-width: 75% !important; padding: 0 !important; }'
+					// Select2: right radius 0
+					. ' .phone-number-country-code + .select2-container .select2-selection { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }'
+					. ' .phone-number-country-code + .select2-container { width: 100% !important; }'
+					// Native select: right radius 0, fill column width
+					. ' .phone-number-country-code { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; width: 100% !important; }'
+				);
+
+				if ($this->injectStyles) {
+					$wrapper = Html::el();
+					$wrapper->addHtml($select);
+					$wrapper->addHtml($style);
+					return $wrapper;
+				}
+				return $select;
 
 			case self::CONTROL_NATIONAL_NUMBER:
 				if ($this->value instanceof PhoneNumber) {
@@ -152,12 +188,16 @@ class PhoneNumberInput extends BaseControl
 					$value = $this->values[$key] ?? null;
 				}
 
-				return Html::el('input', array_merge([
+				$inputAttrs = [
 					'type' => 'tel',
 					'value' => $value,
 					'id' => $this->getHtmlId(),
 					'data-nette-rules' => \Nette\Forms\Helpers::exportRules($this->getRules()) ?: null,
-				], $attrs));
+				];
+				if ($this->injectStyles) {
+					$inputAttrs['style'] = 'border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important;';
+				}
+				return Html::el('input', array_merge($inputAttrs, $attrs));
 		}
 	}
 
