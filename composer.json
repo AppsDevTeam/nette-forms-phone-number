@@ -3,7 +3,7 @@
     "type": "library",
     "license": "MIT",
     "require": {
-        "brick/phonenumber": "^0.7",
+        "brick/phonenumber": "^0.7 | ^0.8",
         "nette/forms": "^2.4 | ^3.0",
         "geoip2/geoip2": "^2.10 | ^3.0"
     },

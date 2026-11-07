@@ -101,7 +101,12 @@ class PhoneNumberInput extends BaseControl
 	{
 		$countryCodes = [];
 
-		foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $code => $_) {
+		// libphonenumber 9 replaced the static property with a constant, brick/phonenumber 0.7 still uses version 8
+		$map = defined(CountryCodeToRegionCodeMap::class . '::COUNTRY_CODE_TO_REGION_CODE_MAP')
+			? CountryCodeToRegionCodeMap::COUNTRY_CODE_TO_REGION_CODE_MAP
+			: CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap;
+
+		foreach ($map as $code => $_) {
 			$countryCodes['+' . $code] = '+' . $code;
 		}
 
