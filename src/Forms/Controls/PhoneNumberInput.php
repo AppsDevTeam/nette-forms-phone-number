@@ -101,16 +101,23 @@ class PhoneNumberInput extends BaseControl
 	{
 		$countryCodes = [];
 
-		// libphonenumber 9 replaced the static property with a constant, brick/phonenumber 0.7 still uses version 8
-		$map = defined(CountryCodeToRegionCodeMap::class . '::COUNTRY_CODE_TO_REGION_CODE_MAP')
-			? CountryCodeToRegionCodeMap::COUNTRY_CODE_TO_REGION_CODE_MAP
-			: CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap;
-
-		foreach ($map as $code => $_) {
+		foreach (self::getCountryCodeToRegionCodeMap() as $code => $_) {
 			$countryCodes['+' . $code] = '+' . $code;
 		}
 
 		return $countryCodes;
+	}
+
+	/**
+	 * libphonenumber 9 replaced the static property with a constant, brick/phonenumber 0.7 still uses version 8
+	 *
+	 * @return array<int, string[]>
+	 */
+	private static function getCountryCodeToRegionCodeMap(): array
+	{
+		return defined(CountryCodeToRegionCodeMap::class . '::COUNTRY_CODE_TO_REGION_CODE_MAP')
+			? CountryCodeToRegionCodeMap::COUNTRY_CODE_TO_REGION_CODE_MAP
+			: CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap;
 	}
 
 	/**
@@ -294,7 +301,7 @@ class PhoneNumberInput extends BaseControl
 			try {
 				$code = self::getCountryCodeByIp();
 
-				foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $cc => $rcm) {
+				foreach (self::getCountryCodeToRegionCodeMap() as $cc => $rcm) {
 					if (array_search($code, $rcm) !== false) {
 						$result = '+' . $cc;
 						break;
