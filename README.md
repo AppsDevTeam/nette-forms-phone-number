@@ -48,7 +48,8 @@ or separately:
 ```
 
 To render both parts as one Bootstrap 5 input group (country code 25 %, number the rest, works with Select2 too),
-pass `true` as the last argument. It applies to `{input phone}` only, separately rendered parts are left to your layout:
+pass `true` as the last argument or call `setInjectStyles()`. It applies to `{input phone}` only, separately rendered
+parts are left to your layout:
 
 ```php
 $form->addPhoneNumber('phone', 'Phone number', 'A phone number must be valid', true);

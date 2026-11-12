@@ -55,14 +55,12 @@ class PhoneNumberInput extends BaseControl
 	{
 		$container->addComponent($control = new self($label), $name);
 
-		$control->injectStyles = $injectStyles;
-		$control->container = $injectStyles
-			? Html::el('div')->addClass('input-group phone-number-input-group')
-			: Html::el();
+		$control->container = Html::el();
 		$control->controls[static::CONTROL_COUNTRY_CODE] = Html::el();
 		$control->controls[static::CONTROL_NATIONAL_NUMBER] = Html::el();
 		$control->setDefaultCountryCode(self::getDefaultCountryCodeByIP());
 		$control->addRule(self::VALID, $invalidPhoneNumberMessage);
+		$control->setInjectStyles($injectStyles);
 
 		return $control;
 	}
@@ -103,16 +101,14 @@ class PhoneNumberInput extends BaseControl
 			$html .= $this->getControlPart($key);
 		}
 
-		$this->container->setHtml($html);
-
 		if (!$this->injectStyles) {
-			return $this->container;
+			return $this->container->setHtml($html);
 		}
 
 		// Bootstrap's input-group rounds only the outer corners of its first and last child, so the style must stay
 		// outside the group; Select2 keeps the hidden select as the first child and puts its container after it
 		return Html::el()
-			->addHtml($this->container)
+			->addHtml((clone $this->container)->setName('div')->addClass('input-group phone-number-input-group')->setHtml($html))
 			->addHtml(Html::el('style')->setHtml(
 				'.phone-number-input-group > select, .phone-number-input-group > .select2-container { flex: 0 0 25% !important; width: 25% !important; }'
 				. ' .phone-number-input-group > .select2-container { margin-left: 0 !important; }'
@@ -240,6 +236,12 @@ class PhoneNumberInput extends BaseControl
 		}
 
 		return $this->controls[$key];
+	}
+
+	public function setInjectStyles(bool $injectStyles = true): static
+	{
+		$this->injectStyles = $injectStyles;
+		return $this;
 	}
 
 	/**
