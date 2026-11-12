@@ -38,6 +38,9 @@ class PhoneNumberInput extends BaseControl
 	protected $items;
 
 	/** @var string|null */
+	protected $defaultCountryCode;
+
+	/** @var string|null */
 	private static $defaultCountryCodeByIP;
 
 	/** @var string|null */
@@ -114,11 +117,23 @@ class PhoneNumberInput extends BaseControl
 	{
 		$countryCodes = [];
 
-		foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $code => $_) {
+		foreach (self::getCountryCodeToRegionCodeMap() as $code => $_) {
 			$countryCodes['+' . $code] = '+' . $code;
 		}
 
 		return $countryCodes;
+	}
+
+	/**
+	 * libphonenumber 9 replaced the static property with a constant, brick/phonenumber 0.7 still uses version 8
+	 *
+	 * @return array<int, string[]>
+	 */
+	private static function getCountryCodeToRegionCodeMap(): array
+	{
+		return defined(CountryCodeToRegionCodeMap::class . '::COUNTRY_CODE_TO_REGION_CODE_MAP')
+			? CountryCodeToRegionCodeMap::COUNTRY_CODE_TO_REGION_CODE_MAP
+			: CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap;
 	}
 
 	/**
@@ -141,7 +156,9 @@ class PhoneNumberInput extends BaseControl
 			case self::CONTROL_COUNTRY_CODE:
 				$value = $this->value instanceof PhoneNumber
 					? '+' . $this->value->getCountryCode()
-					: ($this->values[$key] ?? null);
+					// the select always sends a value, so a missing one means the control was not in the submitted
+					// form (it was added only after submission, e.g. revealed by a submit button)
+					: ($this->values[$key] ?? $this->defaultCountryCode);
 
 				$items = [];
 
@@ -250,6 +267,7 @@ class PhoneNumberInput extends BaseControl
 	 */
 	public function setDefaultCountryCode($value)
 	{
+		$this->defaultCountryCode = $value;
 		$form = $this->getForm(false);
 		if ($this->isDisabled() || !$form || !$form->isAnchored() || !$form->isSubmitted()) {
 			$this->value = $this->values[self::CONTROL_COUNTRY_CODE] = $value;
@@ -329,7 +347,7 @@ class PhoneNumberInput extends BaseControl
 			try {
 				$code = self::getCountryCodeByIp();
 
-				foreach (CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap as $cc => $rcm) {
+				foreach (self::getCountryCodeToRegionCodeMap() as $cc => $rcm) {
 					if (array_search($code, $rcm) !== false) {
 						$result = '+' . $cc;
 						break;
