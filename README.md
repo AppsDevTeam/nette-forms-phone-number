@@ -47,4 +47,11 @@ or separately:
 {input phone:countryCode} {input phone:nationalNumber}
 ```
 
+To render both parts as one Bootstrap 5 input group (country code 25 %, number the rest, works with Select2 too),
+pass `true` as the last argument. It applies to `{input phone}` only, separately rendered parts are left to your layout:
+
+```php
+$form->addPhoneNumber('phone', 'Phone number', 'A phone number must be valid', true);
+```
+
 To turn on autocomplete in IDE, add `@method PhoneNumberInput addPhoneNumber($name, $label = null)` to your base form.
