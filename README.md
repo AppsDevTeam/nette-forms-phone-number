@@ -8,13 +8,9 @@ Install library via composer:
 composer require adt/nette-forms-phone-number
 ```
 
-and register method extension in `bootstrap.php`:
-
-```php
-\ADT\Forms\Controls\PhoneNumberInput::register();
-```
-
-This allows you to call the method `addPhoneNumber` on class `Nette\Forms\Form` or `Nette\Forms\Container`.
+The method `addPhoneNumber` of `Nette\Forms\Form` and `Nette\Forms\Container` is registered by
+installing the package (composer autoload `files`, `src/register.php`), no
+`PhoneNumberInput::register()` in the bootstrap is needed (calling it is harmless).
 
 ## Usage
 

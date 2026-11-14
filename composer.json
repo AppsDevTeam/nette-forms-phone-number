@@ -10,6 +10,7 @@
     "autoload": {
         "psr-4": {
             "ADT\\": "src/"
-        }
+        },
+        "files": ["src/register.php"]
     }
 }
